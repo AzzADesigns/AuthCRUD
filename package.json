@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/index.js",
-  "tyoe": "module",
+  "type": "module",
   "scripts": {
     "dev" : "nodemon .",
     "start" : "node ."
