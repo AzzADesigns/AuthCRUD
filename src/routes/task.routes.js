@@ -1,9 +1,10 @@
-import { Router } from "express";
+import  Router  from "express-promise-router";
 import {createTask, deleteTask, getAllTasks, getTask, updateTask} from "../controllers/tasks.controller.js"
+import { isAuth } from "../middlewares/auth.middleweare.js";
 
 const router = Router();
 
-router.get("/tasks", getAllTasks )
+router.get("/tasks", isAuth ,getAllTasks )
 
 router.get("/tasks/:id", getTask)
 
