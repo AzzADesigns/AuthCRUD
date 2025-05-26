@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt"
 import { pool } from "../db.js"
 import { createAccesToken } from "../libs/jwt.js";
+import md5 from "md5";
 
 export const signin= async (req, res)=>{
     const {email, password} = req.body
@@ -14,7 +15,7 @@ export const signin= async (req, res)=>{
     }
 
     const validPassword = await bcrypt.compare(password, result.rows[0].password)
-    //el problema puede estar o aca , o en el middleware, probar quitar el middleware ya que es posible que como no tiene ningun otken , no le este llegando lo que necesita, o proba alguna que si tenga token, o crea una nueva con un token
+
     console.log(validPassword)
 
     if(!validPassword){
@@ -36,16 +37,17 @@ export const signin= async (req, res)=>{
 
 }
 
-export const signup= async (req, res)=> {
+export const signup= async (req, res, next)=> {
     const {name, email, password} = req.body;
 
     try {
 
         const hashedPassword= await bcrypt.hash(password, 10)
+        const gravatar = `https://www.gravatar.com/avatar/${md5(email)}`
         
         const result = await pool.query(
-            "INSERT INTO users(name, email, password) VALUES($1, $2, $3) Returning *",
-            [name, email, hashedPassword]
+            "INSERT INTO users(name, email, password, gravatar) VALUES($1, $2, $3, $4) Returning *",
+            [name, email, hashedPassword, gravatar]
         )
 
         const token= await createAccesToken({id: result.rows[0].id})
@@ -64,14 +66,22 @@ export const signup= async (req, res)=> {
             return res.status(400).json({
                 message:"el correo ya esta registrado",
             })
-        }
+        };
 
         console.error(error);
+
+        next(error)
 
         return res.status(500).json({
             message: "Error interno del servidor",
         });
     }
 }
-export const signout= (req, res)=> res.send("cerrando sesion")
-export const profile= (req, res)=> res.send("perfil del usuario")
+export const signout= (req, res)=> {
+    res.clearCookie("token");
+    res.sendStatus(200)
+}
+export const profile= async (req, res)=> {
+    const result = await pool.query("SELECT * FROM users WHERE id = $1", [req.userId]);
+    return res.json(result.rows[0])
+}
