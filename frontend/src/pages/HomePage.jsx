@@ -1,8 +1,14 @@
-// src/pages/HomePage.jsx
+import { useAuth } from "../context/AuthContext"
+
+
 export default function HomePage() {
-  return (
-    <div>
-      <h1>Home Page</h1>
-    </div>
-  )
+    const data= useAuth()
+    console.log(data)
+
+
+    return (
+        <div>
+            <h1 className="">Home Page</h1>
+        </div>
+    )
 }

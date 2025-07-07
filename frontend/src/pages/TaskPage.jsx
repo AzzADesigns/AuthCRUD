@@ -2,7 +2,7 @@
 export default function TaskPage() {
   return (
     <div>
-      <h1>Task Page</h1>
+      <h1 className="">Task Page</h1>
     </div>
   )
 }
